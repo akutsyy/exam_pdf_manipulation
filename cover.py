@@ -25,6 +25,11 @@ def set_need_appearances_writer(writer: PdfFileWriter):
         print('set_need_appearances_writer() catch : ', repr(e))
         return writer
 
+def atoi(text):
+    return int(text) if text.isdigit() else text
+
+def natural_keys(text):
+    return [ atoi(c) for c in re.split(r'(\d+)', text) ]
 
 def get_cover_writer(infile, field_dictionary):
     pdf = PdfFileReader(open(infile, "rb"), strict=False)
@@ -53,6 +58,7 @@ def append_covers(cover_filename, path):
     # Filter to only questions
     regex = re.compile('p[0-9]q[0-9]+.pdf')
     selected_files = list(filter(regex.match, files))
+    selected_files.sort(key=natural_keys)
 
     exam_question_dict = {}
     # Determine which questions are done in which exams
@@ -85,7 +91,7 @@ def append_covers(cover_filename, path):
         Path("./cover_output").mkdir(exist_ok=True)
         with open("./cover_output/p" + exam + "q" + question + ".pdf", "wb") as outputStream:
             output.write(outputStream)
-            
+
 if 'n' not in input("IMPORTANT: Have you filled out the BGN and all relevant checkboxes on the cover sheet? [Y/n]:") and 'n' not in input("Are all questions in the form p[paper number]q[question number].pdf? [Y/n]:"):
     append_covers(input("Cover filename:"), input("Path to questions:"))
 else:
